@@ -33,7 +33,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/s-chathuranga-j/cypress-bootstrap-cucumber.git"
+    "url": "git+https://github.com/s-chathuranga-j/cypress-bootstrap-cucumber.git"
   },
   "homepage": "https://github.com/s-chathuranga-j/cypress-bootstrap-cucumber#readme",
   "bugs": {
