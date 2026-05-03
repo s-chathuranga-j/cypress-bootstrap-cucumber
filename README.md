@@ -60,12 +60,12 @@ browserstack.template.json    BrowserStack Accessibility template
 
 ## Step Definition Placement
 
-| Location | When to use |
-|----------|-------------|
-| `cypress/tests/ui/<feature>.steps.ts` | Steps used only in that one feature |
-| `cypress/tests/api/<feature>.steps.ts` | Steps used only in that one API feature |
-| `cypress/support/step_definitions/common.steps.ts` | Steps reused across 2+ features |
-| `cypress/support/step_definitions/hooks.ts` | `Before` / `After` hooks |
+| Location                                           | When to use                             |
+| -------------------------------------------------- | --------------------------------------- |
+| `cypress/tests/ui/<feature>.steps.ts`              | Steps used only in that one feature     |
+| `cypress/tests/api/<feature>.steps.ts`             | Steps used only in that one API feature |
+| `cypress/support/step_definitions/common.steps.ts` | Steps reused across 2+ features         |
+| `cypress/support/step_definitions/hooks.ts`        | `Before` / `After` hooks                |
 
 See [`docs/step-definitions.md`](docs/step-definitions.md) for details and examples.
 
@@ -118,7 +118,7 @@ Keep selectors in page objects, never in step definitions:
 class LoginPage extends BasePage {
   usernameInput = () => cy.get('[data-test="username"]');
   passwordInput = () => cy.get('[data-test="password"]');
-  loginButton  = () => cy.get('[data-test="login-button"]');
+  loginButton = () => cy.get('[data-test="login-button"]');
 }
 
 export default new LoginPage();
@@ -130,27 +130,28 @@ Step definitions call page objects and API clients only.
 
 This framework ships guidance files for all major AI coding agents:
 
-| Agent | File |
-|-------|------|
-| Claude (Claude Code) | `CLAUDE.md` |
-| Codex / OpenAI agents | `AGENTS.md` |
-| GitHub Copilot | `.github/copilot-instructions.md` |
-| Cursor | `.cursor/rules/framework.md` |
-| Windsurf | `.windsurfRules` |
-| OpenAI Codex skill | `.codex/skills/cypress-bootstrap-cucumber/` |
+| Agent                 | File                                        |
+| --------------------- | ------------------------------------------- |
+| Claude (Claude Code)  | `CLAUDE.md`                                 |
+| Codex / OpenAI agents | `AGENTS.md`                                 |
+| GitHub Copilot        | `.github/copilot-instructions.md`           |
+| Cursor                | `.cursor/rules/framework.md`                |
+| Windsurf              | `.windsurfRules`                            |
+| OpenAI Codex skill    | `.codex/skills/cypress-bootstrap-cucumber/` |
 
 All agent files reference [`docs/conventions.md`](docs/conventions.md) as the single source
 of truth for framework conventions.
 
 ## Documentation
 
-| File | Contents |
-|------|---------|
-| [`docs/conventions.md`](docs/conventions.md) | Full framework conventions — canonical AI reference |
-| [`docs/project-overview.md`](docs/project-overview.md) | Architecture overview |
-| [`docs/page-object-model.md`](docs/page-object-model.md) | Page object standards |
-| [`docs/step-definitions.md`](docs/step-definitions.md) | Colocated vs shared step placement |
-| [`docs/test-organization.md`](docs/test-organization.md) | Feature and tag organisation |
-| [`docs/api-testing.md`](docs/api-testing.md) | API client patterns |
-| [`docs/accessibility.md`](docs/accessibility.md) | Accessibility testing setup |
-| [`docs/configuration.md`](docs/configuration.md) | Cypress, Cucumber, reporting, BrowserStack config |
+| File                                                                               | Contents                                                                                                    |
+| ---------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| [`Cypress-Framework-Development-Guide.md`](Cypress-Framework-Development-Guide.md) | Architecture rationale, folder structure, implementation patterns, scaffold behavior, and AI agent strategy |
+| [`docs/conventions.md`](docs/conventions.md)                                       | Full framework conventions — canonical AI reference                                                         |
+| [`docs/project-overview.md`](docs/project-overview.md)                             | Architecture overview                                                                                       |
+| [`docs/page-object-model.md`](docs/page-object-model.md)                           | Page object standards                                                                                       |
+| [`docs/step-definitions.md`](docs/step-definitions.md)                             | Colocated vs shared step placement                                                                          |
+| [`docs/test-organization.md`](docs/test-organization.md)                           | Feature and tag organisation                                                                                |
+| [`docs/api-testing.md`](docs/api-testing.md)                                       | API client patterns                                                                                         |
+| [`docs/accessibility.md`](docs/accessibility.md)                                   | Accessibility testing setup                                                                                 |
+| [`docs/configuration.md`](docs/configuration.md)                                   | Cypress, Cucumber, reporting, BrowserStack config                                                           |
