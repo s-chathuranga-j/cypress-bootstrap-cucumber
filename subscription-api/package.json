@@ -1,0 +1,21 @@
+{
+  "name": "subscription-api",
+  "version": "1.0.0",
+  "description": "Simple subscription management API for testing (product types, products, subscriptions) with Swagger schema.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [
+    "subscription",
+    "api",
+    "express",
+    "swagger"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.2.1"
+  }
+}

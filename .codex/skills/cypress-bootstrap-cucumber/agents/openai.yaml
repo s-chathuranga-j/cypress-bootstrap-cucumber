@@ -1,0 +1,70 @@
+interface:
+  display_name: 'Cypress Bootstrap Cucumber'
+  short_description: 'Cypress + Cucumber + TypeScript framework guidance'
+  default_prompt: >
+    Use $cypress-bootstrap-cucumber to author, fix, explain, or review Cypress Cucumber tests while preserving this framework's conventions.
+
+policy:
+  allow_implicit_invocation: true
+
+context_files:
+  - .ai/agent-guidelines.md
+  - .ai/skills/cypress-bootstrap-cucumber/SKILL.md
+  - .ai/skills/cypress-bootstrap-cucumber/references/authoring.md
+  - .ai/skills/cypress-bootstrap-cucumber/references/explaining-and-reviewing.md
+  - docs/conventions.md
+  - docs/step-definitions.md
+  - docs/page-object-model.md
+  - docs/test-organization.md
+  - docs/api-testing.md
+  - docs/accessibility.md
+  - docs/configuration.md
+
+rules:
+  - id: no_selectors_in_steps
+    description: >
+      Never put cy.get(), cy.contains(), or raw CSS/attribute selectors in step definitions.
+      All selectors must live in cypress/pages page objects.
+
+  - id: arrow_function_locators
+    description: >
+      All page object locators must be arrow functions that return a Cypress chainable,
+      e.g. submitButton = () => cy.get('[data-test="submit"]').
+
+  - id: singleton_page_export
+    description: >
+      Page objects must extend BasePage and export a singleton:
+      export default new PageName()
+
+  - id: colocated_steps_first
+    description: >
+      New step definitions are colocated with their feature file by default.
+      Move a step to cypress/support/step_definitions/common.steps.ts only
+      when it is used by two or more distinct feature files.
+
+  - id: no_duplicate_steps
+    description: >
+      The same step text must not be defined in more than one file.
+      Shared steps live only in common.steps.ts.
+
+  - id: stable_tags
+    description: >
+      Use stable, documented tags: @ui, @api, @smoke, @a11y, @wip, and domain
+      tags (@products, @customers, @subscriptions). Run with --env tags=<expression>.
+
+  - id: deterministic_cypress_flow
+    description: >
+      Do not use arbitrary waits, async/await around cy commands, manual Promise control,
+      or outer variables for command results. Prefer Cypress chains, aliases, retryable
+      assertions, cy.intercept aliases, API clients, and framework helpers.
+
+  - id: explain_by_intent_and_risk
+    description: >
+      When explaining or reviewing tests, lead with behavior intent, then summarize
+      structure, Cypress mechanics, dependencies, assumptions, risks, and framework
+      convention violations.
+
+  - id: no_committed_secrets
+    description: >
+      Never commit cypress.env.json or browserstack.generated.json.
+      BrowserStack credentials use BROWSERSTACK_USERNAME and BROWSERSTACK_ACCESS_KEY env vars.

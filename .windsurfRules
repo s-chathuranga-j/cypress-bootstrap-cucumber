@@ -1,0 +1,12 @@
+# Cypress Bootstrap Cucumber — Windsurf Rules
+
+Central AI guidance lives in `.ai/`.
+
+Read:
+
+- `.ai/agent-guidelines.md`
+- `.ai/skills/cypress-bootstrap-cucumber/SKILL.md`
+- `docs/conventions.md`
+- `docs/step-definitions.md`
+
+Do not duplicate framework rules in this file. Update `.ai/` for shared agent behavior.

@@ -1,0 +1,26 @@
+{
+  "auth": {
+    "username": "${BROWSERSTACK_USERNAME}",
+    "access_key": "${BROWSERSTACK_ACCESS_KEY}"
+  },
+  "browsers": [
+    {
+      "browser": "chrome",
+      "os": "Windows 11",
+      "versions": ["latest"]
+    }
+  ],
+  "run_settings": {
+    "nodeVersion": "20.16.0",
+    "cypress_config_file": "./cypress.config.ts",
+    "specs": ["cypress/tests/ui/accessibility.feature"],
+    "project_name": "Cypress Bootstrap Cucumber",
+    "build_name": "Cypress Bootstrap Cucumber Accessibility",
+    "build_tag": "a11y",
+    "parallels": "1",
+    "headless": false,
+    "accessibility": true,
+    "system_env_vars": ["CYPRESS_BASE_URL", "API_BASE_URL", "SWAGGER_SCHEMA_URL"]
+  },
+  "disable_usage_reporting": true
+}
