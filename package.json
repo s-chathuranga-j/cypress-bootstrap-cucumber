@@ -18,9 +18,8 @@
     "typecheck": "tsc --noEmit",
     "postinstall": "node scripts/setup.js",
     "setup": "node scripts/setup.js",
-    "build": "npm pack",
-    "prepublishOnly": "npm run build",
-    "publish": "npm publish",
+    "build": "npm pack --dry-run --ignore-scripts",
+    "prepublishOnly": "npm run typecheck && npm run build",
     "format": "prettier --write \"**/*.{js,ts,tsx,json,md,yml,yaml}\"",
     "format:check": "prettier --check \"**/*.{js,ts,tsx,json,md,yml,yaml}\"",
     "prepare": "husky"
