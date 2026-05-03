@@ -1,128 +1,144 @@
 # Cypress Bootstrap Cucumber Framework Development Guide
 
-## Purpose
+Strategic patterns and implementation techniques for enterprise-grade Cypress, Cucumber, and
+AI-agent-ready test automation.
 
-This document explains the architecture, folder structure, implementation patterns, and
-engineering decisions behind the Cypress Bootstrap Cucumber framework.
+## Table of Contents
 
-The project is not only a Cypress test suite. It is an installable npm scaffold that creates a
-complete Cypress, Cucumber, TypeScript, Page Object Model, API testing, accessibility testing,
-BrowserStack, reporting, and AI-agent-ready automation framework.
+1. [Introduction](#introduction)
+2. [Framework Architecture Philosophy](#framework-architecture-philosophy)
+3. [Cucumber Specification Strategy](#cucumber-specification-strategy)
+4. [Project Structure Strategy](#project-structure-strategy)
+5. [Page Object Model Implementation Pattern](#page-object-model-implementation-pattern)
+6. [API Testing Architecture](#api-testing-architecture)
+7. [Configuration and Environment Management](#configuration-and-environment-management)
+8. [Session Management and Authentication Strategies](#session-management-and-authentication-strategies)
+9. [Test Data Management Approaches](#test-data-management-approaches)
+10. [Reporting, Accessibility, and Quality Assurance](#reporting-accessibility-and-quality-assurance)
+11. [Code Quality and Development Standards](#code-quality-and-development-standards)
+12. [CI/CD and BrowserStack Integration Strategies](#cicd-and-browserstack-integration-strategies)
+13. [npm Scaffold and Package Publishing Strategy](#npm-scaffold-and-package-publishing-strategy)
+14. [AI-Driven Test Generation and Agent Architecture](#ai-driven-test-generation-and-agent-architecture)
+15. [Framework Scalability and Maintenance](#framework-scalability-and-maintenance)
+16. [Conclusion](#conclusion)
 
-The original framework guide was written for a Cypress-only architecture. This version reflects
-the current Cucumber-based project and the additional agent guidance files that help Codex,
-Claude, GitHub Copilot, Cursor, Windsurf, and future AI agents work consistently inside the
-framework.
+---
 
-## Framework Goals
+## Introduction
 
-The framework is designed around these goals:
+This guide presents the architectural patterns and implementation strategies behind the
+`cypress-bootstrap-cucumber` framework. It is based on the same enterprise automation ideas as
+the earlier Cypress framework guide, but it is rewritten for the current project: an installable
+npm scaffold built with Cypress, Cucumber/Gherkin, TypeScript, Page Object Model conventions,
+API clients, accessibility testing, BrowserStack support, reporting, and centralized AI agent
+guidance.
 
-- Provide a reusable npm package named `cypress-bootstrap-cucumber`.
-- Scaffold a complete automation project into a consumer repository.
-- Use Cucumber/Gherkin for readable behavior specifications.
-- Keep implementation details in TypeScript step definitions, page objects, API clients, and
-  helpers.
-- Follow the Page Object Model for UI test maintainability.
-- Use singleton page object exports so tests share one consistent page abstraction.
-- Use arrow-function locators so Cypress commands are executed lazily at runtime.
-- Keep selectors out of feature files and step definitions.
-- Support UI, API, accessibility, and BrowserStack execution paths.
-- Provide clear conventions for both human engineers and AI coding agents.
+The framework is designed for teams that need more than isolated Cypress examples. It provides
+a complete project structure, execution model, coding conventions, setup automation, and agent
+instructions so human engineers and AI coding agents can extend the framework without drifting
+from its standards.
 
-## Technology Stack
+### Strategic Framework Benefits
 
-The framework uses:
+**Architectural scalability**: A layered design supports growth from a small starter suite to a
+larger UI, API, accessibility, and cloud execution framework.
 
-| Area                | Technology                                                         |
-| ------------------- | ------------------------------------------------------------------ |
-| Test runner         | Cypress                                                            |
-| BDD layer           | `@badeball/cypress-cucumber-preprocessor`                          |
-| Bundling            | Esbuild through `@bahmutov/cypress-esbuild-preprocessor`           |
-| Language            | TypeScript                                                         |
-| UI architecture     | Page Object Model                                                  |
-| API testing         | Cypress custom commands, `ApiBase`, typed API clients              |
-| Reporting           | `cypress-multi-reporters`, Mochawesome, JUnit                      |
-| Accessibility       | `axe-core`, `cypress-axe`, `wick-a11y`                             |
-| Cloud accessibility | BrowserStack Cypress CLI accessibility automation                  |
-| Scaffold delivery   | npm package, CLI, postinstall setup script                         |
-| Agent guidance      | `.ai`, `.codex`, `.claude`, `.github`, `.cursor`, `.windsurfRules` |
+**Readable behavior**: Cucumber feature files describe user and API behavior in business terms
+while TypeScript step definitions keep implementation details controlled.
 
-## High-Level Architecture
+**Maintainability**: Page objects centralize UI selectors, API clients centralize service
+interactions, and shared steps prevent duplicate Cucumber definitions.
 
-At a high level, the framework separates behavior, orchestration, and implementation:
+**Quality**: TypeScript, Prettier, Husky, lint-staged, Cucumber reports, Mochawesome, JUnit,
+and accessibility checks create multiple feedback loops.
 
-```text
-Gherkin feature files
-  -> TypeScript step definitions
-      -> Page objects for UI behavior
-      -> API clients for service behavior
-      -> Custom Cypress commands and shared helpers
-          -> Cypress runtime, reports, BrowserStack, accessibility plugins
-```
+**Professional delivery**: npm scaffolding, BrowserStack configuration, GitHub Actions, and
+agent-ready guidance make the framework usable as a reusable package rather than a one-off test
+repository.
 
-This separation keeps tests readable while preventing feature files and step definitions from
-becoming fragile implementation scripts.
+---
 
-## Project Structure
+## Framework Architecture Philosophy
+
+### Layered Architecture Strategy
+
+The framework uses a layered architecture with explicit responsibility boundaries:
 
 ```text
-cypress-bootstrap-cucumber/
-  .ai/                         Central AI agent source of truth
-  .claude/                     Claude skill adapter
-  .codex/                      Codex skill adapter and OpenAI agent metadata
-  .cursor/                     Cursor rules adapter
-  .github/
-    copilot-instructions.md    GitHub Copilot repository instructions
-    prompts/                   Copilot reusable prompt files
-    workflows/                 BrowserStack accessibility workflow
-  .windsurfRules               Windsurf adapter
-  AGENTS.md                    Generic agent entrypoint
-  CLAUDE.md                    Claude entrypoint
-  bin/                         CLI executable
-  cypress/
-    pages/                     Page Object Model classes
-    support/
-      commands.ts              Custom Cypress commands
-      e2e.ts                   Cypress support entrypoint
-      Enums.ts                 Shared enums and constants
-      step_definitions/
-        common.steps.ts        Steps shared by 2 or more features
-        hooks.ts               Global Cucumber hooks
-    testbase/
-      BasePage.ts              Base class for page objects
-      ApiBase.ts               API request helper
-      apiClients/              Typed clients per API resource
-      apiEndpoints.ts          Endpoint constants
-      modals/
-        requests/              Request model types
-        responses/             Response model types
-    testdata/                  JSON and typed data objects
-    tests/
-      api/                     API `.feature` and `*.steps.ts` files
-      ui/                      UI and accessibility `.feature` and `*.steps.ts` files
-  docs/                        Focused framework documentation
-  scripts/                     Setup and BrowserStack config generation scripts
-  subscription-api/            Local sample API used by API tests
++---------------------------------------------------+
+| Behavior Specification Layer                      |
+| Gherkin .feature files with tags and scenarios    |
++---------------------------------------------------+
+| Step Definition Layer                             |
+| Thin TypeScript orchestration and assertions      |
++---------------------------------------------------+
+| Page Object and API Client Layer                  |
+| UI selectors, page behavior, typed service calls  |
++---------------------------------------------------+
+| Base Classes, Commands, Models, and Test Data     |
+| Shared Cypress commands, BasePage, ApiBase, data  |
++---------------------------------------------------+
+| Configuration, Reporting, BrowserStack, Agents    |
+| Runtime wiring, CI, package setup, AI guidance    |
++---------------------------------------------------+
 ```
 
-## Why Cucumber
+The most important design decision is that behavior and implementation remain separate.
+Features describe what matters. Step definitions translate that language into test actions.
+Page objects and API clients own the mechanics.
 
-Cucumber adds a behavior specification layer on top of Cypress. The purpose is not to make
-tests verbose. The purpose is to make the intent of important user and API behavior readable
-before a person looks at implementation code.
+### Architectural Principles
 
-Good feature files answer:
+**Separation of concerns**: Feature files contain behavior, step definitions orchestrate, page
+objects contain selectors and UI behavior, API clients contain service interactions, and
+configuration files wire execution. This creates predictable patterns for both engineers and AI
+agents.
 
-- What behavior is being tested?
-- What user or API state matters?
-- What action occurs?
-- What outcome should be true?
+**Cucumber-first test organization**: This framework does not use `.cy.ts` or `.spec.ts` tests.
+All executable tests are `.feature` files under `cypress/tests`, backed by TypeScript
+`*.steps.ts` files.
 
-They should not expose selectors, routes, low-level Cypress commands, API payload construction,
-or implementation shortcuts.
+**Page Object Model discipline**: Selectors live in `cypress/pages`, not in feature files or
+step definitions. Page objects extend `BasePage`, use arrow-function locators, and export
+singletons.
 
-Example:
+**Type safety first**: TypeScript is used across step definitions, page objects, API clients,
+request models, response models, custom commands, and configuration.
+
+**Deterministic execution**: Tests should rely on Cypress retryability, assertions, API setup,
+custom commands, aliases, and session helpers instead of arbitrary waits or shared mutable
+state.
+
+**Agent-aware design**: The project ships centralized AI guidance and thin adapters for Codex,
+Claude, GitHub Copilot, Cursor, Windsurf, and generic agents. The architecture is explicit so
+generated code has a smaller chance of violating framework standards.
+
+---
+
+## Cucumber Specification Strategy
+
+### Why Cucumber Is Used
+
+Cucumber adds a behavior specification layer to Cypress. The goal is not to add ceremony. The
+goal is to make important workflows readable before someone opens a TypeScript file.
+
+A good feature file should answer:
+
+- What behavior is being validated?
+- What state does the user or API need?
+- What action happens?
+- What result should be true?
+
+A feature file should not expose:
+
+- CSS selectors
+- Cypress commands
+- API payload construction
+- Authentication token mechanics
+- BrowserStack details
+- Low-level setup and cleanup logic
+
+### Feature File Pattern
 
 ```gherkin
 @ui @smoke
@@ -130,49 +146,16 @@ Feature: Login
 
   Scenario: Standard user can log in
     Given I open the login page
-    When I log in as a standard user
+    When I login with valid credentials
     Then the inventory page should be displayed
 ```
 
-This reads like behavior. The step definition handles orchestration. The page object handles UI
-mechanics.
+The scenario is readable. The implementation lives in TypeScript. The selectors live in page
+objects.
 
-## Cucumber Configuration
+### Step Definition Placement Strategy
 
-Cucumber is configured through:
-
-- `cypress.config.ts`
-- `.cypress-cucumber-preprocessorrc.json`
-
-The Cypress spec pattern is:
-
-```typescript
-specPattern: 'cypress/tests/**/*.feature';
-```
-
-Step definitions are resolved from:
-
-```json
-[
-  "cypress/tests/[filepath].steps.ts",
-  "cypress/tests/[filepath]/steps.ts",
-  "cypress/support/step_definitions/**/*.ts"
-]
-```
-
-This supports the framework's colocated step definition model while still allowing shared
-steps and hooks under `cypress/support/step_definitions`.
-
-## Feature and Step Definition Placement
-
-Feature files live under:
-
-```text
-cypress/tests/ui/
-cypress/tests/api/
-```
-
-Each feature normally has a colocated step file:
+The framework uses colocated step definitions by default:
 
 ```text
 cypress/tests/ui/login.feature
@@ -188,26 +171,24 @@ Shared steps live in:
 cypress/support/step_definitions/common.steps.ts
 ```
 
-Global hooks live in:
+Global Cucumber hooks live in:
 
 ```text
 cypress/support/step_definitions/hooks.ts
 ```
 
-The rule is simple:
+The rule is:
 
-1. Start every new step in the colocated `*.steps.ts` file.
-2. Move the step to `common.steps.ts` only when 2 or more features reuse the same step text.
-3. Never define the same step text in more than one file.
+1. Start a new step in the colocated `*.steps.ts` file.
+2. Move it to `common.steps.ts` only when two or more features need the same step text.
+3. Never define the same step text more than once.
 
-This avoids a common Cucumber failure mode: duplicate step definitions spread across the suite.
+This pattern preserves discoverability without creating a global step library full of vague
+definitions.
 
-## Tag Strategy
+### Tag-Based Execution
 
-Tags are the framework's primary suite selection mechanism. The framework uses native Cucumber
-tag filtering through `--env tags=...`.
-
-Common tags:
+Tags are the framework's suite selection mechanism:
 
 | Tag              | Purpose                       |
 | ---------------- | ----------------------------- |
@@ -220,382 +201,722 @@ Common tags:
 | `@customers`     | Customer domain scenarios     |
 | `@subscriptions` | Subscription domain scenarios |
 
-Examples:
+Native Cucumber tag expressions are passed through Cypress environment values:
 
 ```bash
-npm run cypress:run:smoke
+cypress run --env tags=@smoke
 cypress run --env tags="@api and @smoke"
 cypress run --env tags="@ui and not @wip"
 ```
 
-The framework deliberately does not use `@cypress/grep` because the maintained Cucumber
-preprocessor already provides native tag expression support.
+The framework intentionally uses the maintained Cucumber preprocessor's native tag filtering
+instead of adding a separate grep plugin.
 
-## Page Object Model
+---
 
-The Page Object Model is the framework's main UI maintainability pattern.
+## Project Structure Strategy
 
-Page objects live in:
+### Organizational Philosophy
+
+The folder structure optimizes for discoverability, maintainability, and repeatable scaffolding.
+Every major concern has a clear home so developers and AI agents can find the correct file
+before making changes.
+
+### Core Structure Patterns
 
 ```text
-cypress/pages/
+cypress/
+  pages/                       Page Object Model classes
+  support/
+    commands.ts                Custom Cypress commands
+    e2e.ts                     Cypress support entrypoint
+    Enums.ts                   Shared enums and constants
+    step_definitions/
+      common.steps.ts          Shared Cucumber steps
+      hooks.ts                 Global Cucumber hooks
+  testbase/
+    BasePage.ts                Base class for page objects
+    ApiBase.ts                 API command definitions
+    apiClients/                Typed API clients
+    apiEndpoints.ts            Endpoint constants
+    modals/
+      requests/                Request model types
+      responses/               Response model types
+  testdata/
+    testdata.json              Shared static data
+    dataObjects/               Typed sample data objects
+  tests/
+    api/                       API feature files and step definitions
+    ui/                        UI and accessibility feature files and steps
 ```
 
-Shared page behavior lives in:
+The root also contains the package and enablement layers:
 
 ```text
-cypress/testbase/BasePage.ts
+bin/                           CLI executable
+scripts/                       Setup and BrowserStack config scripts
+subscription-api/              Local sample API
+docs/                          Framework documentation
+.ai/                           Central AI agent guidance
+.codex/                        Codex skill adapter
+.claude/                       Claude skill adapter
+.github/                       Copilot guidance and GitHub Actions
+.cursor/                       Cursor rule adapter
+.windsurfRules                 Windsurf rule adapter
+AGENTS.md                      Generic agent entrypoint
+CLAUDE.md                      Claude entrypoint
 ```
 
-Every page object should:
+### Strategic Organizational Benefits
 
-- Extend `BasePage`.
-- Keep every selector inside the page object.
-- Define locators as arrow functions.
-- Expose behavior through methods.
-- Export a singleton instance.
+**Discoverability**: A developer can infer where to add a feature, a step definition, a page
+object, an API client, or an agent instruction.
 
-Example:
+**Maintainability**: Changing a selector should affect a page object. Changing an endpoint
+should affect an API client or endpoint constant. Changing shared behavior should affect common
+steps or support utilities.
+
+**Scalability**: The same structure supports additional UI domains, API resources, accessibility
+coverage, BrowserStack suites, and AI guidance without changing the framework's mental model.
+
+**Scaffoldability**: The npm setup script can copy this structure into a consumer project
+idempotently because the project has stable boundaries.
+
+---
+
+## Page Object Model Implementation Pattern
+
+### Strategic Page Object Philosophy
+
+The framework uses a disciplined Page Object Model. Page objects provide a stable UI contract
+for step definitions. They own selectors and page-level behavior, while Cucumber steps keep the
+business flow readable.
+
+### Core Implementation Principles
+
+**Element-centric design**: Selectors are defined as arrow-function locators on page classes.
+
+**Selective method creation**: Complex multi-action operations can become page methods. Simple
+actions can be expressed in step definitions by calling page object locators and methods. Raw
+selectors still stay inside page objects.
+
+**Base page inheritance**: Common cross-page behavior belongs in `BasePage`.
+
+**Singleton exports**: Page objects export one shared instance.
+
+### Base Page Foundation
 
 ```typescript
-import BasePage from '../testbase/BasePage';
+class BasePage {
+  loadingSpinner = () => cy.get('[role="progressbar"]');
+  modalDialog = () => cy.get('div[role="dialog"]');
+
+  public waitForSpinners() {
+    this.loadingSpinner().should('not.exist');
+  }
+
+  public checkPageURL(url: string) {
+    cy.url().should('include', url);
+  }
+}
+```
+
+### Page Object Structure
+
+```typescript
+import { BasePage } from '../testbase/BasePage';
+import TestData from '../testdata/testdata.json';
 
 class LoginPage extends BasePage {
   usernameInput = () => cy.get('[data-test="username"]');
   passwordInput = () => cy.get('[data-test="password"]');
   loginButton = () => cy.get('[data-test="login-button"]');
+  errorMessage = () => cy.get('[data-test="error"]');
 
-  visit() {
-    cy.visit('/');
-  }
-
-  login(username: string, password: string) {
-    this.usernameInput().clear().type(username);
-    this.passwordInput().clear().type(password);
-    this.loginButton().click();
+  public createSession() {
+    cy.session('SwagLabsSession', () => {
+      cy.visit('/');
+      this.usernameInput().type(TestData.user_credentials.valid_username);
+      this.passwordInput().type(TestData.user_credentials.password);
+      this.loginButton().click();
+      cy.url().should('include', '/inventory.html');
+    });
   }
 }
 
 export default new LoginPage();
 ```
 
-## Why Arrow-Function Locators
+### Critical Implementation Patterns
 
-Cypress commands are queued and executed later. A locator should not run when a class is
-constructed or when a module is imported. It should run only when the test step needs it.
+**Arrow-function locators**: Cypress commands are queued and executed later. An arrow-function
+locator returns a fresh Cypress chainable at the time the step uses it. This avoids stale
+element references and prevents commands from running during class construction or module import.
 
-This is why locators use arrow functions:
+**Singleton exports**: `export default new LoginPage()` gives the framework one stable page
+object instance. The singleton should not store mutable test data. Cypress state should stay in
+Cypress commands, aliases, environment values, or tasks.
 
-```typescript
-usernameInput = () => cy.get('[data-test="username"]');
-```
+**Selector isolation**: Step definitions must not use `cy.get('[selector]')` or raw CSS
+selectors. If a selector changes, the page object is the single update point.
 
-This pattern gives each test a fresh Cypress chainable and avoids stale element references.
+**AI generation benefits**: Page objects with consistent arrow-function locators and singleton
+exports create a predictable grammar. AI agents can identify the correct place for selectors and
+are less likely to mix UI implementation details into step definitions.
 
-Avoid this:
-
-```typescript
-usernameInput = cy.get('[data-test="username"]');
-```
-
-That executes too early and fights Cypress's command queue model.
-
-## Why Singleton Page Objects
-
-Page objects are exported as singletons:
+### Step Definition Usage Pattern
 
 ```typescript
-export default new InventoryPage();
+When('I login with valid credentials', () => {
+  LoginPage.usernameInput().type(TestData.user_credentials.valid_username);
+  LoginPage.passwordInput().type(TestData.user_credentials.password);
+  LoginPage.loginButton().click();
+});
 ```
 
-This keeps usage simple and consistent:
+The step contains orchestration. The selectors remain inside `LoginPage`.
 
-```typescript
-import inventoryPage from '../../pages/InventoryPage';
-```
-
-The singleton should not store mutable test state. Cypress state should stay in Cypress
-commands, aliases, tasks, environment values, or API responses. The singleton is a behavior
-surface, not a test data container.
-
-## Step Definitions Must Stay Thin
-
-Step definitions should orchestrate. They should not become mini test frameworks.
-
-Good step definitions:
-
-- Import `Given`, `When`, `Then`, `Before`, `After`, or `DataTable` from
-  `@badeball/cypress-cucumber-preprocessor`.
-- Call page object methods for UI behavior.
-- Call API clients or custom commands for API behavior.
-- Make assertions at a business-readable level.
-- Avoid raw selectors.
-- Avoid large loops, payload construction, and duplicated low-level Cypress commands.
-
-Avoid this in step definitions:
-
-```typescript
-cy.get('[data-test="username"]').type('standard_user');
-cy.get('[data-test="password"]').type('secret_sauce');
-cy.get('[data-test="login-button"]').click();
-```
-
-Prefer this:
-
-```typescript
-loginPage.login('standard_user', 'secret_sauce');
-```
-
-The selector details belong in `LoginPage`.
-
-## Cypress Command Queue Rules
-
-Cypress commands are not normal promises. The framework follows these rules:
-
-- Do not wrap `cy.*` commands in `async`/`await`.
-- Do not store Cypress command results in outer variables.
-- Do not use `setTimeout` or arbitrary sleeps as synchronization.
-- Use Cypress retryability, assertions, aliases, intercepts, and deterministic setup.
-- Use `.then()` only when a Cypress chain needs to yield a value.
-
-These rules reduce flaky tests and make failures easier to debug.
-
-## Test Data Design
-
-Shared test data lives in:
-
-```text
-cypress/testdata/testdata.json
-cypress/testdata/dataObjects/
-```
-
-The framework uses data object classes for typed test data shapes and a JSON file for shared
-sample data. This keeps feature files readable while avoiding magic strings scattered through
-step definitions.
-
-Feature files should describe behavior, not detailed payload fields. Step definitions and API
-clients can translate readable intent into concrete request bodies.
+---
 
 ## API Testing Architecture
 
-API tests live under:
+### Strategic API Testing Approach
+
+The framework implements a layered API testing strategy that keeps Gherkin behavior readable
+while preserving type safety and reusable service abstractions.
+
+### Architecture Layers
+
+**Feature layer**: API behavior is described in `.feature` files under `cypress/tests/api`.
+
+**Step definition layer**: TypeScript steps orchestrate API clients, request models, response
+models, and assertions.
+
+**Custom command layer**: `ApiBase.ts` defines reusable Cypress commands such as
+`cy.sendApiRequestDef`.
+
+**API client layer**: Resource-specific clients encapsulate common endpoint operations.
+
+**Model layer**: Request and response types document API contracts and improve TypeScript
+support.
+
+**Endpoint layer**: `apiEndpoints.ts` centralizes service paths and parameterized endpoints.
+
+### Custom Command Pattern
+
+```typescript
+Cypress.Commands.add(
+  'sendApiRequestDef',
+  (
+    endpoint: string,
+    method: string,
+    token: string | null,
+    expectedStatus: number | number[],
+    body: any = undefined
+  ) => {
+    cy.request({
+      method,
+      url: endpoint,
+      failOnStatusCode: false,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body,
+    }).then(response => {
+      if (Array.isArray(expectedStatus)) {
+        expect(response.status).to.be.oneOf(expectedStatus);
+      } else {
+        expect(response.status).to.eq(expectedStatus);
+      }
+      cy.wrap(response.body, { log: false }).as('responseBody');
+    });
+  }
+);
+```
+
+### Typed Client Pattern
+
+```typescript
+class ProductTypesClient {
+  public getAllProductTypes() {
+    return cy.sendApiRequestDef(apiEndpoints.productTypes, HttpMethod.GET, null, StatusCodes.OK);
+  }
+}
+
+export default new ProductTypesClient();
+```
+
+### Request and Response Modeling
+
+```typescript
+export namespace SubscriptionRequests {
+  export interface CreateSubscriptionRequest {
+    productId: string;
+    customerId: string;
+    startDate: string;
+    status: string;
+  }
+}
+```
+
+### Strategic Advantages
+
+**Maintainability**: Endpoint and request changes are handled in one place.
+
+**Reliability**: Expected status validation and response typing reduce accidental false
+positives.
+
+**Readability**: Step definitions describe API behavior instead of raw HTTP plumbing.
+
+**Scalability**: Adding a new API resource follows the same client, model, endpoint, feature,
+and step pattern.
+
+---
+
+## Configuration and Environment Management
+
+### Multi-Environment Strategy
+
+The framework uses layered configuration so one codebase can run locally, in CI, and on
+BrowserStack without hardcoding environment-specific values.
+
+### Configuration Architecture
+
+**Base configuration**: `cypress.config.ts` defines timeouts, viewport, report settings,
+Cucumber preprocessing, support folders, and default URLs.
+
+**Cucumber configuration**: `.cypress-cucumber-preprocessorrc.json` defines step definition
+resolution, filtered spec behavior, Cucumber JSON, Cucumber HTML, messages, screenshots, and
+video attachment settings.
+
+**Reporter configuration**: `reporter-config.ts` configures Mochawesome and JUnit outputs.
+
+**BrowserStack configuration**: `browserstack.template.json` is committed and
+`browserstack.generated.json` is generated at runtime.
+
+### Environment Variable Pattern
+
+```typescript
+baseUrl: process.env.CYPRESS_BASE_URL || 'https://www.saucedemo.com/';
+env: {
+  authUrl: process.env.CYPRESS_AUTH_URL || 'https://saucedemo.com/connect/token',
+  apiBaseUrl: process.env.API_BASE_URL || 'http://localhost:3100',
+  swaggerSchemaUrl:
+    process.env.SWAGGER_SCHEMA_URL ||
+    `${process.env.API_BASE_URL || 'http://localhost:3100'}/swagger.json`,
+}
+```
+
+### Security-First Configuration
+
+Committed examples:
 
 ```text
-cypress/tests/api/
+cypress.env.example.json
+browserstack.template.json
 ```
 
-API clients live under:
+Ignored generated or sensitive files:
 
 ```text
-cypress/testbase/apiClients/
+cypress.env.json
+browserstack.generated.json
+.env
+cypress/reports/
+cypress/screenshots/
+cypress/videos/
+cypress/accessibility/
 ```
 
-Request and response models live under:
+### Custom Runtime Tasks
+
+`cypress.config.ts` defines tasks for cross-command runtime values:
+
+```typescript
+fixedOn('task', {
+  setToken: (newToken: string) => {
+    token = newToken;
+    return null;
+  },
+  getToken: () => token,
+  setTempData: (newTempData: unknown) => {
+    tempData = newTempData;
+    return null;
+  },
+  getTempData: () => tempData,
+});
+```
+
+These tasks are useful for runtime coordination, but they should not become a replacement for
+deterministic setup or well-scoped test data.
+
+---
+
+## Session Management and Authentication Strategies
+
+### Strategic Session Management Approach
+
+The framework supports efficient authentication through Cypress session caching and token
+helpers while keeping tests isolated and repeatable.
+
+### UI Session Pattern
+
+`LoginPage.createSession()` uses `cy.session` to cache the Sauce Demo login flow:
+
+```typescript
+public createSession() {
+  cy.clearAllSessionStorage();
+  cy.clearAllLocalStorage();
+  cy.clearAllCookies();
+
+  cy.session('SwagLabsSession', () => {
+    cy.visit('/');
+    this.usernameInput().type(TestData.user_credentials.valid_username);
+    this.passwordInput().type(TestData.user_credentials.password);
+    this.loginButton().click();
+    cy.url().should('include', '/inventory.html');
+  });
+}
+```
+
+This avoids repeating expensive login flows for every scenario that simply needs an authenticated
+state. Login scenarios still exercise the UI login behavior directly.
+
+### API Token Strategy
+
+The framework includes `cy.getAccessToken()` for client credential flows. Credentials are read
+from Cypress environment variables:
+
+```typescript
+const clientId = Cypress.env('clientId');
+const clientSecret = Cypress.env('clientSecret');
+```
+
+The command stores the token in `Cypress.env('bearerToken')` after validating the auth response.
+
+### Strategic Advantages
+
+**Performance**: Session caching reduces repeated UI setup.
+
+**Reliability**: Authentication setup is centralized and validated.
+
+**Security**: Credentials come from environment configuration, not source code.
+
+**Cucumber compatibility**: Shared authenticated preconditions can be implemented as common
+steps, while actual login behavior remains covered by login features.
+
+---
+
+## Test Data Management Approaches
+
+### Strategic Data Management Philosophy
+
+The framework uses a hybrid data strategy: static reference data for stable scenarios and typed
+data objects or utility generation for API create/update flows.
+
+### Data Architecture Patterns
+
+**Static reference data**:
 
 ```text
-cypress/testbase/modals/requests/
-cypress/testbase/modals/responses/
+cypress/testdata/testdata.json
 ```
 
-The framework includes clients for:
+This contains stable values such as Sauce Demo users and shared UI data.
 
-- Customers
-- Products
-- Product types
-- Subscriptions
-
-The local sample API lives in:
+**Typed data objects**:
 
 ```text
-subscription-api/
+cypress/testdata/dataObjects/Customer.ts
+cypress/testdata/dataObjects/Product.ts
+cypress/testdata/dataObjects/ProductTypes.ts
+cypress/testdata/dataObjects/Subscription.ts
 ```
 
-API tests use `start-server-and-test` so the local API starts before the Cucumber API suite
-runs:
+These provide reusable sample payload fragments for API scenarios.
 
-```bash
-npm run cypress:run:api
-npm run api:test
-```
-
-This matters because API scenarios should be repeatable from a clean checkout without requiring
-an external service.
-
-## Why Typed API Clients
-
-Typed clients give API tests a stable abstraction similar to page objects in UI tests.
-
-Instead of putting raw `cy.request()` calls in step definitions, the framework uses clients such
-as:
+**Utility generation**:
 
 ```text
-cypress/testbase/apiClients/SubscriptionsClient.ts
+cypress/testbase/Utils.ts
+src/index.js
 ```
 
-This gives the framework:
+Utilities can generate unique strings, numbers, emails, GUIDs, and dates when a scenario needs
+fresh data.
 
-- One place to manage endpoints.
-- One place to update headers or request conventions.
-- Reusable request methods.
-- Better TypeScript support.
-- Step definitions that describe behavior rather than HTTP plumbing.
+### Strategic Benefits
 
-## Accessibility Testing
+**Test independence**: API tests can create the product, customer, and subscription data they
+need instead of depending on pre-existing records.
 
-Accessibility support is part of the framework, not an afterthought.
+**Readability**: Feature files remain behavior-focused and avoid payload noise.
 
-Local accessibility testing uses:
+**Maintainability**: Shared data changes happen in one location.
+
+**Parallel readiness**: Unique data generation reduces cross-test collisions.
+
+---
+
+## Reporting, Accessibility, and Quality Assurance
+
+### Multi-Format Reporting Strategy
+
+The framework produces reports for different audiences:
+
+| Output          | Purpose                                |
+| --------------- | -------------------------------------- |
+| Mochawesome     | Human-readable HTML/JSON reports       |
+| JUnit XML       | CI/CD test result ingestion            |
+| Cucumber JSON   | BDD report processing and integrations |
+| Cucumber HTML   | Gherkin-oriented execution visibility  |
+| Messages NDJSON | Cucumber message stream output         |
+| Screenshots     | Failure evidence                       |
+| Videos          | Execution debugging                    |
+
+Reporting is wired through:
+
+```text
+reporter-config.ts
+cypress.config.ts
+.cypress-cucumber-preprocessorrc.json
+```
+
+### Accessibility Strategy
+
+Accessibility testing is integrated into the framework through:
 
 - `axe-core`
 - `cypress-axe`
 - `wick-a11y`
+- BrowserStack accessibility automation
 
-Accessibility scenarios are tagged with:
-
-```text
-@a11y
-```
-
-Run locally:
+Local accessibility scenarios use the `@a11y` tag:
 
 ```bash
 npm run cypress:run:a11y
 ```
 
-The accessibility step injects axe and performs the scan from one shared implementation. Feature
-files should reuse normal navigation steps and then call the accessibility scan step.
+The shared scan step injects axe and performs the accessibility check. Navigation should reuse
+normal UI steps so accessibility coverage stays aligned with real user behavior.
 
-This pattern avoids creating separate "accessibility only" navigation flows that drift away from
-the real user behavior.
+### BrowserStack Accessibility Strategy
 
-## BrowserStack Accessibility
-
-BrowserStack support is included for cloud accessibility execution.
-
-Committed template:
+BrowserStack execution uses:
 
 ```text
 browserstack.template.json
-```
-
-Generated local file:
-
-```text
+scripts/generate-browserstack-config.js
 browserstack.generated.json
-```
-
-The generated file is ignored by git because it contains resolved credential values.
-
-Required environment variables:
-
-```bash
-export BROWSERSTACK_USERNAME="your_username"
-export BROWSERSTACK_ACCESS_KEY="your_access_key"
-```
-
-Commands:
-
-```bash
-npm run browserstack:config
-npm run browserstack:a11y
-```
-
-The GitHub Actions workflow lives in:
-
-```text
 .github/workflows/browserstack-accessibility.yml
 ```
 
-It expects repository secrets:
+Required secrets or environment variables:
 
 ```text
 BROWSERSTACK_USERNAME
 BROWSERSTACK_ACCESS_KEY
 ```
 
-## Reporting
+The generated config is intentionally ignored because it contains resolved credential values.
 
-Reporting is configured through:
+### Strategic Reporting Benefits
 
-- `reporter-config.ts`
-- `cypress.config.ts`
-- `.cypress-cucumber-preprocessorrc.json`
+**Stakeholder alignment**: Human-readable reports help QA, engineering, and management consume
+results.
 
-The framework produces:
+**Pipeline integration**: JUnit XML supports CI test reporting.
 
-- Mochawesome HTML/JSON reports.
-- JUnit XML reports.
-- Cucumber JSON reports.
-- Cucumber HTML reports.
-- Cucumber messages output.
-- Screenshots and videos when failures occur.
+**Compliance support**: Accessibility reports and BrowserStack runs support proactive quality
+checks.
 
-Generated reports and media are ignored by git.
+**Debuggability**: Screenshots, videos, and Cucumber output make failures easier to inspect.
 
-## npm Scaffold Architecture
+---
 
-This project is published as the npm package:
+## Code Quality and Development Standards
+
+### Automated Quality Enforcement Strategy
+
+The framework uses TypeScript, Prettier, Husky, and lint-staged to keep code consistent before
+it reaches CI.
+
+### Quality Architecture
+
+**TypeScript**: `npm run typecheck` validates framework TypeScript without emitting files.
+
+**Prettier**: `npm run format` and `npm run format:check` maintain consistent formatting.
+
+**Husky and lint-staged**: Pre-commit hooks format staged files automatically.
+
+**Package validation**: `npm pack --dry-run --ignore-scripts` verifies the publishable scaffold
+contents without leaving package tarballs behind.
+
+### Development Standards
+
+Framework contributors should:
+
+- Keep feature files readable and business-focused.
+- Keep step definitions thin.
+- Keep raw selectors inside page objects.
+- Keep API request details inside clients and custom commands.
+- Use TypeScript request and response types.
+- Avoid arbitrary waits.
+- Avoid `async`/`await` around Cypress commands.
+- Avoid storing Cypress chainable results in outer variables.
+- Run the smallest meaningful verification command after changes.
+
+### Strategic Quality Benefits
+
+**Consistency**: Automated formatting reduces style drift.
+
+**Reliability**: Type checking catches many failures before runtime.
+
+**Reviewability**: Thin steps, typed clients, and page objects make changes easier to evaluate.
+
+**Agent safety**: The same rules guide AI-generated changes through `.ai` and adapter files.
+
+---
+
+## CI/CD and BrowserStack Integration Strategies
+
+### Pipeline-Ready Architecture
+
+The framework is designed for CI execution through environment variables, tag filtering, report
+artifacts, and BrowserStack configuration generation.
+
+### GitHub Actions Accessibility Workflow
+
+The repository includes:
 
 ```text
-cypress-bootstrap-cucumber
+.github/workflows/browserstack-accessibility.yml
 ```
 
-The package exposes binaries:
+The workflow:
 
-```text
-cypress-bootstrap-cucumber
-cypress-bootstrap-cucumber-setup
-```
+1. Checks out the repository.
+2. Sets up Node.js.
+3. Installs dependencies with `npm ci`.
+4. Runs `npm run typecheck`.
+5. Generates BrowserStack config.
+6. Runs the BrowserStack accessibility suite.
 
-Install into a new project:
+### Suite Selection Strategy
+
+Pipeline jobs can choose suites by npm script:
 
 ```bash
-npm init -y
-npm install cypress-bootstrap-cucumber
+npm run cypress:run:smoke
+npm run cypress:run:ui
+npm run cypress:run:api
+npm run cypress:run:a11y
+```
+
+or by Cucumber tag expression:
+
+```bash
+cypress run --env tags="@api and @smoke"
+```
+
+### Strategic CI/CD Advantages
+
+**Speed**: Smoke and tag-filtered suites provide targeted confidence.
+
+**Reliability**: API suites start the local `subscription-api` before running.
+
+**Security**: BrowserStack credentials are injected through secrets.
+
+**Traceability**: Reports and artifacts support debugging and compliance needs.
+
+---
+
+## npm Scaffold and Package Publishing Strategy
+
+### Scaffold Delivery Model
+
+The framework is packaged as:
+
+```text
+cypress-bootstrap-cucumber
+```
+
+It exposes:
+
+```text
+npx cypress-bootstrap-cucumber setup
 npx cypress-bootstrap-cucumber-setup
 ```
 
-The setup script:
+### Setup Script Strategy
 
-- Creates the framework folder structure.
-- Copies files only when they do not already exist.
-- Copies agent guidance folders recursively.
-- Copies `.gitignore` from the package `gitignore` template.
+`scripts/setup.js` is responsible for copying the framework into a consumer project.
+
+It:
+
+- Uses `INIT_CWD` during npm install so files go to the consumer project root.
+- Creates expected directories.
+- Copies missing files without overwriting user files.
+- Copies `.ai`, `.codex`, `.claude`, `.cursor`, and `.github` recursively.
+- Copies `gitignore` to `.gitignore`.
 - Creates `cypress.env.json` from `cypress.env.example.json` if missing.
-- Merges framework scripts into the consumer `package.json`.
+- Merges framework scripts into consumer `package.json`.
 - Merges framework dependencies into consumer `devDependencies`.
-- Avoids a nested `npm install` during npm `postinstall`.
+- Skips nested dependency installation during npm `postinstall`.
 
-This makes the scaffold idempotent. Running setup again should not overwrite user files.
+### Published Package Contents
 
-## Published Package Contents
-
-The package `files` list intentionally includes the framework code, docs, BrowserStack assets,
-and agent folders:
+`package.json` intentionally publishes the framework code and agent guidance:
 
 ```text
 cypress/
 docs/
 scripts/
 subscription-api/
+bin/
+src/
 .ai/
 .codex/
 .claude/
-.github/
 .cursor/
+.github/
 .windsurfRules
 AGENTS.md
 CLAUDE.md
+Cypress-Framework-Development-Guide.md
 ```
 
-This matters because consumer projects should receive not just tests, but also the rules that
-keep future test development consistent.
+This ensures the installed package carries both implementation files and the conventions needed
+to maintain them.
 
-## AI Agent Enablement
+### Publishing Readiness
 
-The framework includes a centralized agent guidance architecture.
+Before publishing a new package version:
 
-Central source of truth:
+```bash
+npm run typecheck
+npm pack --dry-run --ignore-scripts
+npm publish --access public
+```
+
+If npm two-factor authentication is enabled, publishing requires an OTP:
+
+```bash
+npm publish --access public --otp=<code>
+```
+
+---
+
+## AI-Driven Test Generation and Agent Architecture
+
+### Framework Design for AI Agent Compatibility
+
+The framework is intentionally structured to reduce AI hallucination. It gives agents a clear
+map of where each kind of code belongs.
+
+### Centralized Agent Guidance
+
+The source of truth is:
 
 ```text
 .ai/
@@ -603,209 +924,135 @@ Central source of truth:
   agent-guidelines.md
   skills/cypress-bootstrap-cucumber/SKILL.md
   skills/cypress-bootstrap-cucumber/references/
+    authoring.md
+    explaining-and-reviewing.md
 ```
 
-Agent-specific adapters:
+Agent-specific files are adapters:
 
-| Agent                  | Adapter                                                       |
-| ---------------------- | ------------------------------------------------------------- |
-| Generic agents         | `AGENTS.md`                                                   |
-| Claude                 | `CLAUDE.md`                                                   |
-| Claude skills          | `.claude/skills/cypress-bootstrap-cucumber/SKILL.md`          |
-| Codex skills           | `.codex/skills/cypress-bootstrap-cucumber/SKILL.md`           |
-| OpenAI agent metadata  | `.codex/skills/cypress-bootstrap-cucumber/agents/openai.yaml` |
-| GitHub Copilot         | `.github/copilot-instructions.md`                             |
-| GitHub Copilot prompts | `.github/prompts/cypress-bootstrap-cucumber.prompt.md`        |
-| Cursor                 | `.cursor/rules/framework.md`                                  |
-| Windsurf               | `.windsurfRules`                                              |
+| Agent                 | Adapter                                                       |
+| --------------------- | ------------------------------------------------------------- |
+| Generic agents        | `AGENTS.md`                                                   |
+| Claude                | `CLAUDE.md`                                                   |
+| Claude skills         | `.claude/skills/cypress-bootstrap-cucumber/SKILL.md`          |
+| Codex skills          | `.codex/skills/cypress-bootstrap-cucumber/SKILL.md`           |
+| OpenAI agent metadata | `.codex/skills/cypress-bootstrap-cucumber/agents/openai.yaml` |
+| GitHub Copilot        | `.github/copilot-instructions.md`                             |
+| Copilot prompts       | `.github/prompts/cypress-bootstrap-cucumber.prompt.md`        |
+| Cursor                | `.cursor/rules/framework.md`                                  |
+| Windsurf              | `.windsurfRules`                                              |
 
-The adapters stay intentionally thin. They point back to `.ai` so each agent receives the same
-framework rules instead of drifting into separate conventions.
+The adapters point back to `.ai` so the rules stay centralized.
 
-## Why Agent Guidance Belongs In The Framework
+### Why This Reduces AI Hallucination
 
-AI agents are now part of the development workflow. Without framework-specific guidance, an
-agent may generate tests that technically run but violate project standards:
+**Clear context boundaries**:
 
-- Creating `.cy.ts` specs instead of `.feature` files.
-- Putting selectors directly in step definitions.
-- Duplicating step text across files.
-- Using arbitrary waits.
-- Mixing `async`/`await` with Cypress commands.
-- Writing raw API requests in step definitions.
-- Ignoring BrowserStack or accessibility conventions.
+- Features contain behavior.
+- Steps orchestrate behavior.
+- Page objects contain selectors and UI behavior.
+- API clients contain service behavior.
+- Models contain request and response shapes.
+- Configuration files wire execution.
+- Agent files explain how future tools should work in the repository.
 
-The agent guidance files prevent this by making the framework rules discoverable at the exact
-locations different tools already read.
+**Predictable patterns**:
 
-## Relationship Between Docs And Skills
+- `.feature` plus colocated `*.steps.ts`
+- Singleton page object exports
+- Arrow-function locators
+- Shared steps only after reuse
+- Typed API clients
+- Native Cucumber tag expressions
 
-The documentation and skills serve different purposes:
+**Reviewable generated code**: If an agent violates a boundary, reviewers can identify the
+problem quickly: selectors in steps, duplicate step definitions, raw API requests in steps, or
+new `.cy.ts` files are immediate red flags.
 
-| Asset                                                   | Purpose                                  |
-| ------------------------------------------------------- | ---------------------------------------- |
-| `Cypress-Framework-Development-Guide.md`                | Architectural explanation and rationale  |
-| `docs/conventions.md`                                   | Canonical rules for daily implementation |
-| `docs/step-definitions.md`                              | Step placement details                   |
-| `.ai/agent-guidelines.md`                               | Shared entrypoint for AI agents          |
-| `.ai/skills/.../SKILL.md`                               | Task workflow for agents                 |
-| `.ai/skills/.../references/authoring.md`                | Detailed author/update/fix guidance      |
-| `.ai/skills/.../references/explaining-and-reviewing.md` | Review and explanation guidance          |
+### Implementation Strategy for AI Tools
 
-This guide explains why the framework works this way. The convention docs and skills tell
-contributors exactly how to work inside it.
+When an AI agent changes this repository, it should:
 
-## Implementation Rules For New UI Tests
+1. Read `.ai/agent-guidelines.md`.
+2. Read `.ai/skills/cypress-bootstrap-cucumber/SKILL.md`.
+3. Load only the relevant reference file.
+4. Inspect nearby features, steps, page objects, API clients, and docs.
+5. Make the smallest change that follows the framework pattern.
+6. Run the smallest meaningful verification command.
 
-When adding a new UI behavior:
+---
 
-1. Add or update a `.feature` file under `cypress/tests/ui`.
-2. Add or update the colocated `*.steps.ts` file.
-3. Add or update a page object under `cypress/pages`.
-4. Keep selectors inside the page object.
-5. Use arrow-function locators.
-6. Export the page object as a singleton.
-7. Move reused steps to `common.steps.ts` only after a second feature needs them.
-8. Tag the scenario with `@ui` and any relevant domain tags.
-9. Add `@smoke` only when the scenario is fast and valuable as a confidence check.
-10. Run `npm run typecheck` and the smallest useful Cypress suite.
+## Framework Scalability and Maintenance
 
-## Implementation Rules For New API Tests
+### Scalability Architecture Principles
 
-When adding a new API behavior:
+The framework scales by adding new domains without changing the core architecture:
 
-1. Add or update a `.feature` file under `cypress/tests/api`.
-2. Add or update the colocated `*.steps.ts` file.
-3. Add or update an API client under `cypress/testbase/apiClients`.
-4. Add request and response model types under `cypress/testbase/modals`.
-5. Use endpoint constants from `apiEndpoints.ts`.
-6. Avoid raw `cy.request()` calls in step definitions.
-7. Keep API setup deterministic and repeatable.
-8. Tag the scenario with `@api` and any relevant domain tags.
-9. Run `npm run api:test`.
+- New UI behavior adds `.feature`, `*.steps.ts`, and page object updates.
+- New API resources add feature files, step files, clients, endpoints, models, and data objects.
+- New accessibility coverage reuses existing UI steps and adds `@a11y` scenarios.
+- New agent support adds a thin adapter pointing to `.ai`.
+- New cloud execution paths add templates, generation scripts, and workflow jobs.
 
-## Implementation Rules For Accessibility Tests
+### Long-Term Maintenance Strategies
 
-When adding accessibility coverage:
+**Modular component design**: Page objects, API clients, commands, models, docs, and agent files
+can evolve independently.
 
-1. Reuse normal UI navigation steps.
-2. Add scenarios under `cypress/tests/ui`.
-3. Tag scenarios with `@a11y`.
-4. Call the shared accessibility scan step.
-5. Avoid duplicating navigation just for accessibility.
-6. Run `npm run cypress:run:a11y`.
-7. Use BrowserStack for cloud validation when credentials are available.
+**Centralized conventions**: `docs/conventions.md`, `docs/step-definitions.md`, and `.ai`
+prevent different teams or tools from inventing competing standards.
 
-## Sensitive Files
+**Version management**: Package versions should change intentionally when scaffold behavior,
+published files, or dependency expectations change.
 
-Never commit:
+**Idempotent setup**: Consumer projects can rerun setup without losing local changes because
+files are copied only when missing.
 
-```text
-cypress.env.json
-browserstack.generated.json
-.env
-generated reports
-screenshots
-videos
-accessibility output
-package tarballs
-```
+### Strategic Framework Benefits
 
-The committed examples and templates are safe:
+**Team productivity**: Predictable patterns reduce onboarding time.
 
-```text
-cypress.env.example.json
-browserstack.template.json
-gitignore
-```
+**Code quality**: TypeScript, formatting, and framework boundaries reduce technical debt.
 
-## Verification Strategy
+**Maintenance efficiency**: Centralized selectors, endpoints, and guidance reduce update scope.
 
-Use the smallest check that proves the change.
+**Enterprise readiness**: Reporting, BrowserStack, CI, and package delivery support professional
+test automation workflows.
 
-General checks:
-
-```bash
-npm run typecheck
-npm run format:check
-```
-
-Smoke:
-
-```bash
-npm run cypress:run:smoke
-```
-
-UI:
-
-```bash
-npm run cypress:run:ui
-```
-
-API:
-
-```bash
-npm run cypress:run:api
-npm run api:test
-```
-
-Accessibility:
-
-```bash
-npm run cypress:run:a11y
-npm run browserstack:a11y
-```
-
-Package validation:
-
-```bash
-npm pack --dry-run --ignore-scripts
-```
-
-## Common Anti-Patterns
-
-Avoid these:
-
-- Creating `.spec.ts` or `.cy.ts` tests in this framework.
-- Putting raw selectors in step definitions.
-- Duplicating step definitions with the same text.
-- Making feature files describe implementation details.
-- Using arbitrary waits.
-- Storing Cypress chainable results in outer variables.
-- Hiding assertions inside overly broad helper methods.
-- Storing mutable test state in singleton page objects.
-- Committing generated reports or credential files.
-- Copying upstream AI toolkit skills directly without adapting them to this architecture.
-
-## What Good Looks Like
-
-A good contribution to this framework has these traits:
-
-- The feature file reads like behavior.
-- The step definition is thin and readable.
-- UI details live in page objects.
-- API details live in typed clients.
-- Shared logic is extracted only when it is genuinely reused.
-- Tags make suite selection predictable.
-- Accessibility coverage reuses user flows.
-- BrowserStack configuration remains credential-safe.
-- AI agent guidance remains centralized in `.ai`.
-- Verification commands are run and documented.
+---
 
 ## Conclusion
 
-Cypress Bootstrap Cucumber is designed to be more than a sample test suite. It is a reusable
-automation framework that encodes architectural standards into its folder structure, TypeScript
-patterns, Cucumber conventions, package setup, BrowserStack workflow, and AI agent guidance.
+This framework applies proven Cypress automation architecture to a Cucumber-based, npm
+scaffolded, AI-agent-ready project.
 
-The most important principle is separation of responsibility:
+### Strategic Implementation Approach
+
+**Foundation first**: The project starts with TypeScript, Cucumber configuration, Page Object
+Model conventions, API clients, reports, and setup automation.
+
+**Pattern adoption**: Contributors add behavior through feature files, step definitions, page
+objects, API clients, and models instead of inventing new layouts.
+
+**Quality integration**: Formatting, type checking, reports, accessibility scans, and CI
+workflow support are part of the framework rather than optional extras.
+
+**Agent readiness**: Centralized AI guidance allows future agents to extend the framework with
+the same conventions as human contributors.
+
+### Long-Term Success Considerations
+
+The value of this framework is not only that it can run tests. Its value is that it encodes a
+repeatable engineering model:
 
 - Feature files describe behavior.
 - Step definitions orchestrate behavior.
 - Page objects implement UI interactions.
 - API clients implement service interactions.
-- Test data and models describe data.
-- Config files wire execution, reporting, and cloud integrations.
-- Agent files preserve the framework rules for future contributors.
+- Models and test data define contracts and inputs.
+- Configuration files wire runtime behavior.
+- npm setup scripts make the architecture reusable.
+- Agent files preserve the conventions for future contributors.
 
-When those boundaries stay intact, the framework remains readable, scalable, and safe to evolve.
+When these boundaries stay intact, the framework remains readable, scalable, and safe to evolve
+as the application, team, and automation strategy grow.
